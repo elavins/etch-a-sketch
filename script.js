@@ -1,3 +1,6 @@
+// Select DOM container elements and store as constants
+
+const topui = document.querySelector('#top-ui');
 const wrapper = document.querySelector('#wrapper');
 const ui = document.querySelector('#ui');
 const style = document.querySelector('style');
@@ -9,44 +12,17 @@ setCSS();
 
 // Create 16x16 grid of divs
 
-for (let row = 1; row <= 16; row++) {
-    for (let col = 1; col <= 16; col++) {
-        let item = document.createElement('div');
-        item.classList = 'grid-item';
-        item.setAttribute('data-key', `_${row}x${col}`);
-        item.style['background-color'] = 'white';
-        wrapper.appendChild(item);
-    }
-}
+drawGrid(16, 16);
+let grid = document.querySelectorAll('.grid-item');
+addGridEvents();
 
 // Create 9 swatches, 1 black and 8 random colors
 
-let blackSwatch = document.createElement('div');
-blackSwatch.classList = 'swatch';
-blackSwatch.setAttribute('data-swatch', '_0');
-blackSwatch.style['background-color'] = `black`;
-ui.appendChild(blackSwatch);
+generatePalette();
 
-for (let i = 1; i < 9; i++) {
-    let swatch = document.createElement('div');
-    swatch.classList = 'swatch';
-    swatch.setAttribute('data-swatch', `_${i}`);
-    let randomColor = Math.floor(Math.random() * 16777215).toString(16);
-    swatch.style['background-color'] = `#${randomColor}`;
-    ui.appendChild(swatch);
-}
+// Add event listeners for swatches
 
-// Add event listeners for all grid items and swatches
-
-const grid = document.querySelectorAll('.grid-item');
 const swatches = document.querySelectorAll('.swatch');
-
-grid.forEach(item => {
-    item.addEventListener('click', e => {
-        let clicked = document.querySelector(`[data-key='${e.target.dataset.key}']`);
-        (getColor(clicked) != paintColor) ? setColor(clicked, paintColor) : setColor(clicked, 'white');
-    });
-});
 
 swatches.forEach(item => {
     item.addEventListener('click', e => {
@@ -55,7 +31,25 @@ swatches.forEach(item => {
     });
 });
 
-// Helper functions!
+// Add event listeners for buttons
+const clear = document.querySelector('#clear');
+clear.addEventListener('click', () => newCanvas());
+const save = document.querySelector('#save');
+save.addEventListener('click', () => saveSketch());
+
+// Functions!
+
+function drawGrid(numRows, numCols) {
+    for (let row = 1; row <= numRows; row++) {
+        for (let col = 1; col <= numCols; col++) {
+            let item = document.createElement('div');
+            item.classList = 'grid-item';
+            item.setAttribute('data-key', `_${row}x${col}`);
+            item.style['background-color'] = 'white';
+            wrapper.appendChild(item);
+        }
+    }
+}
 
 function getColor(elem) { return elem.style['background-color'] }
 
@@ -69,4 +63,54 @@ function setPaintColor(newColor) {
 function setCSS() {
     let hoverCss = `.grid-item:hover {background-color: ${paintColor} !important}`;
     style.innerText = hoverCss;
+}
+
+function newCanvas() {
+    grid.forEach(item => setColor(item, 'white'));
+    while (wrapper.lastChild) { wrapper.lastChild.remove() }
+    let rows = +prompt('rows?');
+    let cols = +prompt('columns?');
+    wrapper.style.cssText = `grid-template-rows: repeat(${rows}, 1fr);
+                            grid-template-columns: repeat(${cols}, 1fr);`;
+    drawGrid(rows, cols);
+    addGridEvents();
+}
+
+function generatePalette() {
+    let blackSwatch = document.createElement('div');
+    blackSwatch.classList = 'swatch';
+    blackSwatch.setAttribute('data-swatch', '_0');
+    blackSwatch.style['background-color'] = `black`;
+    ui.appendChild(blackSwatch);
+
+    for (let i = 1; i < 9; i++) {
+        let swatch = document.createElement('div');
+        swatch.classList = 'swatch';
+        swatch.setAttribute('data-swatch', `_${i}`);
+        let randomColor = Math.floor(Math.random() * 16777215).toString(16);
+        swatch.style['background-color'] = `#${randomColor}`;
+        ui.appendChild(swatch);
+    }
+}
+
+function addGridEvents() {
+    grid = document.querySelectorAll('.grid-item');
+
+    grid.forEach(item => {
+        item.addEventListener('click', e => {
+            let clicked = document.querySelector(`[data-key='${e.target.dataset.key}']`);
+            (getColor(clicked) != paintColor) ? setColor(clicked, paintColor) : setColor(clicked, 'white');
+        });
+    });
+}
+
+function saveSketch() {
+    html2canvas(wrapper).then( (canvas) => {
+        let url = canvas.toDataURL("image/png");
+        let a = document.createElement('a');
+        a.setAttribute('href', url);
+        a.setAttribute('download', 'sketch.png');
+        a.click();
+        
+    } );
 }
