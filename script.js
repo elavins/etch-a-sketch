@@ -74,8 +74,12 @@ function newCanvas() {
     while (wrapper.lastChild) { wrapper.lastChild.remove() }
     let rows = +prompt('rows?');
     let cols = +prompt('columns?');
+    while (isNaN(rows) || isNaN(cols) || rows < 1 || cols < 1 || rows > 100 || cols > 100) { 
+        rows = +prompt('Please enter integers 1-100. Rows?');
+        cols = +prompt('columns?');
+    }
     wrapper.style.cssText = `grid-template-rows: repeat(${rows}, 1fr);
-                            grid-template-columns: repeat(${cols}, 1fr);`;
+    grid-template-columns: repeat(${cols}, 1fr);`;
     drawGrid(rows, cols);
     addGridEvents();
 }
