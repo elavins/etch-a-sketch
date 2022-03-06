@@ -36,6 +36,11 @@ const clear = document.querySelector('#clear');
 clear.addEventListener('click', () => newCanvas());
 const save = document.querySelector('#save');
 save.addEventListener('click', () => saveSketch());
+/*const gridButt = document.querySelector('#grid');
+gridButt.addEventListener('click', () => {
+    (window.getComputedStyle(grid[0]).getPropertyValue('border').charAt(0) == 0) ? ;
+});*/
+
 
 // Functions!
 
@@ -45,7 +50,6 @@ function drawGrid(numRows, numCols) {
             let item = document.createElement('div');
             item.classList = 'grid-item';
             item.setAttribute('data-key', `_${row}x${col}`);
-            item.style['background-color'] = 'white';
             wrapper.appendChild(item);
         }
     }
@@ -66,7 +70,7 @@ function setCSS() {
 }
 
 function newCanvas() {
-    grid.forEach(item => setColor(item, 'white'));
+    grid.forEach(item => { item.style.cssText = '' });
     while (wrapper.lastChild) { wrapper.lastChild.remove() }
     let rows = +prompt('rows?');
     let cols = +prompt('columns?');
@@ -111,6 +115,5 @@ function saveSketch() {
         a.setAttribute('href', url);
         a.setAttribute('download', 'sketch.png');
         a.click();
-        
     } );
 }
